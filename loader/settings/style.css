@@ -1,0 +1,59 @@
+body { overflow: hidden; }
+.layout { display: flex; height: 100%; }
+nav {
+  width: 230px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 12px;
+  border-right: 1px solid var(--border);
+  background: var(--card);
+}
+nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 0 6px 14px; }
+.tab {
+  text-align: left;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid transparent;
+  padding: 8px 10px;
+}
+.tab.active { background: var(--bg); border-color: var(--border); }
+main { flex: 1; overflow: auto; padding: 20px 26px; gap: 0; height: auto; }
+section h2 { font-size: 15px; margin: 18px 0 6px; }
+section h2:first-child { margin-top: 0; }
+.muted { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+label.check { display: block; margin: 6px 0; padding-left: 26px; text-indent: -26px; }
+label.check input { width: 16px; margin: 0 8px 0 2px; vertical-align: -2px; }
+.choices label { display: flex; gap: 8px; align-items: baseline; margin: 6px 0; }
+.choices { margin-bottom: 4px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.grow { flex: 1; }
+.card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-top: 14px; background: var(--card); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 8px 0 0; }
+dt { color: var(--muted); }
+dd { margin: 0; word-break: break-word; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+td { padding: 3px 6px; border-top: 1px solid var(--border); vertical-align: top; }
+td.ok { color: #1f8a4c; font-weight: 600; }
+td.fail { color: var(--error); font-weight: 600; }
+.buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+button.small { padding: 4px 10px; font-size: 13px; }
+button.danger { background: transparent; color: var(--error); border-color: var(--error); }
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+}
+.bar span { flex: 1; }
+.override { color: var(--muted); font-size: 13px; font-style: italic; }
+#error { margin-bottom: 14px; }
+footer { margin-top: 22px; }
+@media (prefers-color-scheme: dark) {
+  td.ok { color: #4cc38a; }
+}
+section { background: transparent; border: none; padding: 0; }

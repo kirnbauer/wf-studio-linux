@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=WF-Studio Settings
+Comment=Settings, desktop integration and installation of WF-Studio for Linux
+Exec=wf-studio --wfs-settings
+Icon=dev.kirnbauer.WFStudioLinux
+Terminal=false
+Categories=Graphics;2DGraphics;
+StartupWMClass=WatchFaceStudio

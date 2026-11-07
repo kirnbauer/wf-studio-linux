@@ -1,0 +1,67 @@
+:root {
+  --bg: #14182b;
+  --fg: #eef0fa;
+  --muted: #9aa1c0;
+  --card: #1d2340;
+  --border: #2d3560;
+  --accent: #5b74ff;
+  --accent-fg: #ffffff;
+  --ok: #4cc38a;
+  --warn: #f2b84b;
+  --error: #ff7b72;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.45 system-ui, "Cantarell", "Noto Sans", sans-serif;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+button, a, .notice { -webkit-app-region: no-drag; }
+main { height: 100%; display: flex; flex-direction: column; gap: 18px; padding: 26px 28px 22px; }
+.brand { display: flex; gap: 16px; align-items: center; }
+h1 { font-size: 22px; margin: 0; letter-spacing: 0.2px; }
+.muted { color: var(--muted); margin: 2px 0 0; font-size: 13px; }
+#steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#steps li { display: flex; align-items: center; gap: 10px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); flex: none; }
+li.pending .dot { background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+li.ok .dot { background: var(--ok); }
+li.warn .dot { background: var(--warn); }
+li.error .dot { background: var(--error); }
+li.skip .dot { background: var(--border); }
+li.skip .text { color: var(--muted); }
+@keyframes pulse { 50% { opacity: 0.35; } }
+#notices { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: auto; }
+.notice {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.notice.error { border-left-color: var(--error); }
+.notice .msg { flex: 1 0 100%; }
+.notice button:first-of-type { margin-left: auto; }
+footer { display: flex; align-items: center; gap: 8px; }
+.spacer { flex: 1; }
+button {
+  font: inherit;
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: pointer;
+}
+button.ghost { background: transparent; border-color: var(--border); color: var(--fg); }
+button.small { padding: 4px 10px; font-size: 13px; }
+button:disabled { opacity: 0.5; cursor: default; }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }

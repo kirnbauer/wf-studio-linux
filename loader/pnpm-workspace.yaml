@@ -1,0 +1,29 @@
+# pnpm settings for the loader (pnpm reads them from this file).
+
+# Use whatever pnpm (>= 10) is installed instead of switching to the version in
+# package.json "packageManager" (that one is for corepack and CI). Version
+# switching downloads another pnpm at build time and breaks in several setups,
+# e.g. pnpm >= 11.20 refusing to delegate to 10.x on musl
+# (https://github.com/pnpm/pnpm/issues/13622), or pnpm 12 installs whose native
+# @pnpm/exe binary was skipped by npm. pmOnFail is the pnpm >= 11 setting;
+# pnpm 10 gets manage-package-manager-versions=false from loader/.npmrc
+# (pnpm >= 11 warns about that key here, but does not read it from .npmrc).
+pmOnFail: ignore
+
+# Flat node_modules, no .pnpm symlink farm: the folder is copied as-is into
+# AppImage and Flatpak, and Electron resolves modules like with npm.
+nodeLinker: hoisted
+
+# sharp runs as WebAssembly (@img/sharp-wasm32), not as a native addon: the
+# native libvips ships its own GLib whose exported symbols clash with the system
+# GLib that Electron/GTK loads (libvips assertion aborts on openSUSE
+# Tumbleweed). Only install the wasm32 variant of sharp's platform packages.
+supportedArchitectures:
+  os: [current]
+  cpu: [wasm32]
+  libc: [current]
+
+# sharp 0.34's install script only looks for a native prebuilt (or builds one
+# from source); neither is wanted with the WebAssembly build.
+allowBuilds:
+  sharp: false

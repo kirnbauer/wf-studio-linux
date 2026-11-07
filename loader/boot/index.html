@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'">
+  <title>WF-Studio for Linux</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <img src="../assets/icon.svg" alt="" width="64" height="64">
+      <div>
+        <h1>WF-Studio for Linux</h1>
+        <p id="versions" class="muted">&nbsp;</p>
+      </div>
+    </div>
+
+    <ul id="steps">
+      <li id="step-tools" class="pending"><span class="dot"></span><span class="text">Checking tools…</span></li>
+      <li id="step-updates" class="pending"><span class="dot"></span><span class="text">Checking for updates…</span></li>
+    </ul>
+
+    <div id="notices"></div>
+
+    <footer>
+      <span id="hint" class="muted"></span>
+      <span class="spacer"></span>
+      <button id="btn-quit" class="ghost" title="Quit">Quit</button>
+      <button id="btn-settings" class="ghost">Settings</button>
+      <button id="btn-start" disabled>Start</button>
+    </footer>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

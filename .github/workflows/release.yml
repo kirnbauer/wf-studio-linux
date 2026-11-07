@@ -1,0 +1,60 @@
+name: release
+
+# Cuts a release: picks the next version from Conventional Commits, writes CHANGELOG.md, syncs
+# loader/package.json + AppStream metainfo, commits, tags and starts the build for the tag
+# (which publishes the draft GitHub release with SHA256SUMS and updates GitHub Pages).
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump (auto = from commit messages)
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+      dry_run:
+        description: Only show the version and changelog, change nothing
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency: release
+
+jobs:
+  release:
+    name: Prepare and tag
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Dry run
+        if: inputs.dry_run
+        run: node scripts/release-prepare.mjs --dry-run --bump "${{ inputs.bump }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Prepare release
+        id: prep
+        if: '!inputs.dry_run'
+        run: node scripts/release-prepare.mjs --bump "${{ inputs.bump }}"
+
+      - name: Commit, tag and push
+        if: '!inputs.dry_run'
+        env:
+          TAG: ${{ steps.prep.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md loader/package.json packaging/dev.kirnbauer.WFStudioLinux.metainfo.xml docs/BUILDING.md
+          git commit -m "chore(release): ${TAG}"
+          git tag -a "${TAG}" -m "${TAG}"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "${TAG}"
+          # Pushes made with GITHUB_TOKEN do not trigger workflows, so start the build for the tag explicitly.
+          gh workflow run build.yml --ref "${TAG}"

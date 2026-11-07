@@ -1,0 +1,245 @@
+name: build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  appimage:
+    name: Bundle + AppImage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      # pnpm version comes from "packageManager" in loader/package.json
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: loader/package.json
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y desktop-file-utils zsync xvfb libfuse2t64
+
+      - name: Cache pinned downloads
+        uses: actions/cache@v6
+        with:
+          path: .cache/deps
+          key: deps-${{ hashFiles('deps.env') }}
+
+      - name: Check tag matches loader version, metainfo and changelog
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          v="$(node -p "require('./loader/package.json').version")"
+          [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} != loader version $v"; exit 1; }
+          grep -q "<release version=\"$v\"" packaging/dev.kirnbauer.WFStudioLinux.metainfo.xml \
+            || { echo "metainfo has no <release> for $v"; exit 1; }
+          node scripts/release-prepare.mjs --notes "$v" >/dev/null
+
+      - name: Build bundle (includes self-test)
+        run: scripts/build-bundle.sh
+
+      - name: Build AppImage
+        run: scripts/build-appimage.sh
+
+      - name: Smoke test AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        run: xvfb-run -a dist/WF-Studio-Linux-*-x86_64.AppImage --wfs-check
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wf-studio-linux-bundle
+          path: dist/wf-studio-linux-*-x86_64.tar.gz
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: WF-Studio-Linux-AppImage
+          path: |
+            dist/WF-Studio-Linux-*-x86_64.AppImage
+            dist/WF-Studio-Linux-*-x86_64.AppImage.zsync
+          if-no-files-found: error
+
+  flatpak:
+    name: Flatpak
+    needs: appimage
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: wf-studio-linux-bundle
+          path: dist
+
+      - name: Stage bundle for the manifest
+        run: |
+          mkdir -p build/flatpak-src
+          cp dist/wf-studio-linux-*-x86_64.tar.gz build/flatpak-src/wf-studio-linux-x86_64.tar.gz
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: WF-Studio-Linux-x86_64.flatpak
+          manifest-path: flatpak/dev.kirnbauer.WFStudioLinux.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      # flatpak-builder (above) exported the build into the OSTree repo ./repo.
+      # Release repositories are always GPG-signed (key: see docs/RELEASING.md).
+      - name: Sign Flatpak repository and prepare it for GitHub Pages
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          FLATPAK_GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+          FLATPAK_GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          test -d repo
+          if [ -z "$FLATPAK_GPG_PRIVATE_KEY" ] || [ -z "$FLATPAK_GPG_KEY_ID" ]; then
+            echo "::error::Secrets FLATPAK_GPG_PRIVATE_KEY and FLATPAK_GPG_KEY_ID are required for releases (see docs/RELEASING.md)."
+            exit 1
+          fi
+          test -f packaging/pages/wf-studio-linux.gpg || { echo "::error::packaging/pages/wf-studio-linux.gpg (public key) is missing."; exit 1; }
+          export GNUPGHOME="$(mktemp -d)"
+          chmod 700 "$GNUPGHOME"
+          printf '%s\n' "$FLATPAK_GPG_PRIVATE_KEY" | gpg --batch --import
+          secret_fpr="$(gpg --batch --with-colons --list-secret-keys "$FLATPAK_GPG_KEY_ID" | awk -F: '/^fpr/ {print $10; exit}')"
+          public_fpr="$(gpg --batch --with-colons --show-keys packaging/pages/wf-studio-linux.gpg | awk -F: '/^fpr/ {print $10; exit}')"
+          [ -n "$secret_fpr" ] && [ "$secret_fpr" = "$public_fpr" ] \
+            || { echo "::error::Signing key ($secret_fpr) does not match packaging/pages/wf-studio-linux.gpg ($public_fpr)."; exit 1; }
+          flatpak build-sign repo dev.kirnbauer.WFStudioLinux master --gpg-sign="$FLATPAK_GPG_KEY_ID" --gpg-homedir="$GNUPGHOME"
+          flatpak build-update-repo --gpg-sign="$FLATPAK_GPG_KEY_ID" --gpg-homedir="$GNUPGHOME" --generate-static-deltas --prune repo
+          rm -rf "$GNUPGHOME"
+          tar -cf flatpak-repo.tar repo
+
+      - uses: actions/upload-artifact@v7
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: flatpak-repo
+          path: flatpak-repo.tar
+          if-no-files-found: error
+
+  checksums:
+    name: SHA256SUMS
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [appimage, flatpak]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+          pattern: '{wf-studio-linux-bundle,WF-Studio-Linux-*}'
+
+      - name: Name flatpak bundle after the release
+        run: mv artifacts/WF-Studio-Linux-x86_64.flatpak "artifacts/WF-Studio-Linux-${GITHUB_REF_NAME#v}-x86_64.flatpak"
+
+      - name: Hashes and release notes
+        run: |
+          mkdir -p release-files
+          cp artifacts/*.AppImage artifacts/*.AppImage.zsync artifacts/*.flatpak artifacts/*.tar.gz release-files/
+          (cd release-files && sha256sum -- * > SHA256SUMS && cat SHA256SUMS && sha256sum -c SHA256SUMS)
+          {
+            node scripts/release-prepare.mjs --notes "${GITHUB_REF_NAME#v}"
+            printf '\n### SHA-256\n\n| File | SHA-256 |\n| --- | --- |\n'
+            awk '$2 != "SHA256SUMS" { printf "| %s | `%s` |\n", $2, $1 }' release-files/SHA256SUMS
+            printf '\nVerify: `sha256sum -c --ignore-missing SHA256SUMS`\n'
+          } > release-files/release-notes.md
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-files
+          path: release-files
+          if-no-files-found: error
+
+  pages:
+    name: Flatpak repository (GitHub Pages)
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [flatpak, checksums]
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: flatpak-repo
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-files
+          path: release-files
+
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          tar -xf flatpak-repo.tar -C site
+          cp release-files/SHA256SUMS site/
+          cp CHANGELOG.md site/
+          FLATPAK_GPG_FINGERPRINT="$(gpg --batch --with-colons --show-keys packaging/pages/wf-studio-linux.gpg | awk -F: '/^fpr/ {print $10; exit}')" \
+          node scripts/render-pages.mjs "${GITHUB_REF_NAME#v}" release-files/SHA256SUMS CHANGELOG.md site/index.html \
+            "https://github.com/${GITHUB_REPOSITORY}"
+          # The public key is embedded in the .flatpakrepo/.flatpakref so that clients verify signatures.
+          cp packaging/pages/wf-studio-linux.gpg site/
+          gpgkey="$(base64 -w0 packaging/pages/wf-studio-linux.gpg)"
+          for f in wf-studio-linux.flatpakrepo dev.kirnbauer.WFStudioLinux.flatpakref; do
+            sed "s|{{GPGKEY}}|${gpgkey}|" "packaging/pages/$f" > "site/$f"
+          done
+          touch site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v5
+
+  release:
+    name: GitHub release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: checksums
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-files
+          path: release-files
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          body_path: release-files/release-notes.md
+          files: |
+            release-files/*.AppImage
+            release-files/*.AppImage.zsync
+            release-files/*.flatpak
+            release-files/*.tar.gz
+            release-files/SHA256SUMS

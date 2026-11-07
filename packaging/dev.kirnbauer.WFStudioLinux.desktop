@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Application
+Name=WF-Studio for Linux
+GenericName=Watch Face Designer
+Comment=Design watch faces for Wear OS – unofficial Linux launcher for Samsung Galaxy Watch Face Studio
+Exec=wf-studio %f
+Icon=dev.kirnbauer.WFStudioLinux
+Terminal=false
+Categories=Graphics;2DGraphics;
+MimeType=application/x-watchfacestudio-project;application/x-watchfacestudio-plugin;
+Keywords=Watch Face Studio;Wear OS;Galaxy Watch;watch face;WFS;
+StartupWMClass=WatchFaceStudio
+SingleMainWindow=true
+Actions=settings;setup;
+
+[Desktop Action settings]
+Name=WF-Studio Settings
+Exec=wf-studio --wfs-settings
+
+[Desktop Action setup]
+Name=Update or reinstall Watch Face Studio
+Exec=wf-studio --wfs-setup

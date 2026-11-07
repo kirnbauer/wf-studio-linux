@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.kirnbauer.WFStudioLinux</id>
+  <name>WF-Studio for Linux</name>
+  <summary>Unofficial Linux launcher for Samsung Galaxy Watch Face Studio</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="dev.kirnbauer">
+    <name>kirnbauer</name>
+  </developer>
+  <description>
+    <p>
+      Runs Samsung's official Galaxy Watch Face Studio natively on Linux, without Wine.
+      You download the official Windows release from Samsung's website yourself; the app
+      verifies Samsung's digital signature and runs its cross-platform parts on a native
+      Linux Electron runtime together with native Android build tools and a JDK.
+    </p>
+    <p>
+      This project is not affiliated with or endorsed by Samsung. Watch Face Studio is
+      proprietary software of Samsung Electronics and is not included in this package.
+    </p>
+  </description>
+  <launchable type="desktop-id">dev.kirnbauer.WFStudioLinux.desktop</launchable>
+  <url type="homepage">https://github.com/kirnbauer/wf-studio-linux</url>
+  <url type="bugtracker">https://github.com/kirnbauer/wf-studio-linux/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-06"/>
+  </releases>
+</component>

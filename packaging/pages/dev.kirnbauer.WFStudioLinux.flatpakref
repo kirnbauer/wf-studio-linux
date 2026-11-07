@@ -1,0 +1,10 @@
+[Flatpak Ref]
+Name=dev.kirnbauer.WFStudioLinux
+Branch=master
+Title=WF-Studio for Linux
+Url=https://kirnbauer.github.io/wf-studio-linux/repo/
+SuggestRemoteName=wf-studio-linux
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+IsRuntime=false
+GPGKey={{GPGKEY}}
+Homepage=https://github.com/kirnbauer/wf-studio-linux

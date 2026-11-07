@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WF-Studio for Linux</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #1d1f23; background: #fff; }
+    pre { background: #f3f4f6; padding: 12px; overflow-x: auto; border-radius: 6px; }
+    code { font-size: 0.9em; word-break: break-all; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5d8dd; vertical-align: top; }
+    a { color: #0b5cd5; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e6e8eb; background: #17191d; }
+      pre { background: #23262d; }
+      th, td { border-bottom-color: #3a3e47; }
+      a { color: #7db3ff; }
+    }
+  </style>
+</head>
+<body>
+  <h1>WF-Studio for Linux</h1>
+  <p>Unofficial Linux launcher for <a href="https://github.com/kirnbauer/wf-studio-linux">Samsung Galaxy Watch Face Studio</a>. Latest release: <strong>v{{VERSION}}</strong>.</p>
+
+  <h2>Flatpak repository</h2>
+  <p>Installed from here, updates arrive through <code>flatpak update</code> and your software centre.</p>
+  <pre>flatpak remote-add --user --if-not-exists wf-studio-linux https://kirnbauer.github.io/wf-studio-linux/wf-studio-linux.flatpakrepo
+flatpak install --user wf-studio-linux dev.kirnbauer.WFStudioLinux</pre>
+  <p>The repository is signed; the <a href="wf-studio-linux.gpg">public key</a> is embedded in the <code>.flatpakrepo</code> file. Key fingerprint: <code>{{FINGERPRINT}}</code></p>
+
+  <h2>Downloads</h2>
+  {{DOWNLOADS}}
+
+  <h2>Checksums</h2>
+  <p>Verify a download with <a href="SHA256SUMS">SHA256SUMS</a>: <code>sha256sum -c --ignore-missing SHA256SUMS</code></p>
+  {{HASHES}}
+
+  <h2>Changelog</h2>
+  {{CHANGELOG}}
+  <p><a href="CHANGELOG.md">Full changelog</a></p>
+
+  <p>Not affiliated with or endorsed by Samsung. Watch Face Studio itself is downloaded from Samsung on first start.</p>
+</body>
+</html>

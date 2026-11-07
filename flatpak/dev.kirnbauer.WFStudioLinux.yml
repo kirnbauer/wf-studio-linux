@@ -1,0 +1,61 @@
+# Flatpak manifest for wf-studio-linux.
+#
+# Packs the prebuilt, distribution-neutral bundle from scripts/build-bundle.sh
+# (Electron + loader + native Android tools + JDK + 7-Zip). Watch Face Studio
+# itself is downloaded by the user on first start into
+# ~/.var/app/dev.kirnbauer.WFStudioLinux/data/wf-studio-linux.
+#
+# Build with scripts/build-flatpak.sh.
+app-id: dev.kirnbauer.WFStudioLinux
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '26.08'
+command: wf-studio
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  # Native Wayland is opt-in: WFS_LINUX_OZONE=auto (see README)
+  - --socket=wayland
+  - --device=dri
+  # Download from Samsung on first start, update check, adb over Wi-Fi
+  - --share=network
+  # adb to a watch connected over USB
+  - --device=all
+  # WFS workspace (~/WatchFaceStudio) and projects anywhere in the home directory
+  - --filesystem=home
+modules:
+  - name: wf-studio-linux
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib
+      - cp -a wf-studio-linux /app/lib/wf-studio-linux
+      # zypak provides the Chromium sandbox inside Flatpak
+      - rm -f /app/lib/wf-studio-linux/chrome-sandbox
+      - install -Dm755 wf-studio.sh /app/bin/wf-studio
+      - install -Dm644 dev.kirnbauer.WFStudioLinux.desktop /app/share/applications/dev.kirnbauer.WFStudioLinux.desktop
+      - install -Dm644 dev.kirnbauer.WFStudioLinux.Settings.desktop /app/share/applications/dev.kirnbauer.WFStudioLinux.Settings.desktop
+      - install -Dm644 dev.kirnbauer.WFStudioLinux.metainfo.xml /app/share/metainfo/dev.kirnbauer.WFStudioLinux.metainfo.xml
+      - install -Dm644 dev.kirnbauer.WFStudioLinux.svg /app/share/icons/hicolor/scalable/apps/dev.kirnbauer.WFStudioLinux.svg
+      - install -Dm644 dev.kirnbauer.WFStudioLinux.mime.xml /app/share/mime/packages/dev.kirnbauer.WFStudioLinux.xml
+    sources:
+      - type: archive
+        path: ../build/flatpak-src/wf-studio-linux-x86_64.tar.gz
+        dest: wf-studio-linux
+      - type: file
+        path: ../packaging/dev.kirnbauer.WFStudioLinux.desktop
+      - type: file
+        path: ../packaging/dev.kirnbauer.WFStudioLinux.Settings.desktop
+      - type: file
+        path: ../packaging/dev.kirnbauer.WFStudioLinux.metainfo.xml
+      - type: file
+        path: ../packaging/dev.kirnbauer.WFStudioLinux.svg
+      - type: file
+        path: ../packaging/dev.kirnbauer.WFStudioLinux.mime.xml
+      - type: script
+        dest-filename: wf-studio.sh
+        commands:
+          - export WFS_LINUX_LAUNCHER=/app/bin/wf-studio
+          - exec zypak-wrapper /app/lib/wf-studio-linux/wf-studio "$@"

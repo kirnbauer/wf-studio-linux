@@ -1,0 +1,8 @@
+[Flatpak Repo]
+Title=WF-Studio for Linux
+Url=https://kirnbauer.github.io/wf-studio-linux/repo/
+Homepage=https://github.com/kirnbauer/wf-studio-linux
+Comment=Unofficial Linux launcher for Samsung Galaxy Watch Face Studio
+Description=Repository for WF-Studio for Linux
+GPGKey={{GPGKEY}}
+Icon=https://raw.githubusercontent.com/kirnbauer/wf-studio-linux/main/packaging/dev.kirnbauer.WFStudioLinux.svg

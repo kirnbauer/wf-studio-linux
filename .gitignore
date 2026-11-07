@@ -1,0 +1,28 @@
+# Build output
+.cache/
+build/
+dist/
+node_modules/
+.flatpak-builder/
+repo/
+site/
+
+# Release artifacts
+*.AppImage
+*.flatpak
+*.tar.gz
+*.zsync
+flatpak-repo.tar
+SHA256SUMS
+
+# Keys: never commit private keys.
+# (The public key packaging/pages/wf-studio-linux.gpg must stay tracked, so *.gpg is not ignored.)
+*.asc
+flatpak-private.*
+.gnupg/
+
+# Local files
+.env
+*.log
+*.swp
+.DS_Store

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'">
+  <title>WF-Studio Settings</title>
+  <link rel="stylesheet" href="../setup/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand"><img src="../assets/icon.svg" alt="" width="32" height="32"><span>WF-Studio Settings</span></div>
+      <button class="tab active" data-tab="display">Display &amp; performance</button>
+      <button class="tab" data-tab="integration">Integration</button>
+      <button class="tab" data-tab="install">Installation &amp; updates</button>
+      <button class="tab" data-tab="general">Startup &amp; about</button>
+    </nav>
+
+    <main>
+      <div id="restart-bar" class="bar" hidden>
+        <span>Display settings take effect after a restart.</span>
+        <button id="btn-restart">Restart now</button>
+      </div>
+      <div id="error" role="alert" hidden></div>
+
+      <!-- Display & performance -->
+      <section data-panel="display">
+        <h2>Display backend</h2>
+        <p class="muted">X11 is Electron's default and the most tested. Native Wayland gives sharper text with fractional scaling.</p>
+        <div class="choices" id="ozone">
+          <label><input type="radio" name="ozone" value="x11"> X11 / XWayland (default)</label>
+          <label><input type="radio" name="ozone" value="auto"> Automatic (Wayland if available)</label>
+          <label><input type="radio" name="ozone" value="wayland"> Wayland</label>
+        </div>
+        <p class="override" id="ozone-override" hidden></p>
+
+        <h2>Graphics acceleration</h2>
+        <label class="check"><input type="checkbox" id="ignoreGpuBlocklist"> Ignore the GPU blocklist <span class="muted">(use the GPU even on drivers Chromium distrusts)</span></label>
+        <label class="check"><input type="checkbox" id="disableGpu"> Software rendering <span class="muted">(only for broken graphics drivers)</span></label>
+
+        <div class="card">
+          <div class="row"><strong>Current status</strong><span class="spacer"></span><button class="secondary small" id="btn-gpu">Refresh</button></div>
+          <dl id="gpu"><dt>Status</dt><dd>loading…</dd></dl>
+        </div>
+
+        <div class="card">
+          <div class="row"><strong>Self-test of the bundled tools</strong><span class="spacer"></span><button class="secondary small" id="btn-selftest">Run self-test</button></div>
+          <table id="selftest" hidden><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- Integration -->
+      <section data-panel="integration" hidden>
+        <h2>Start menu</h2>
+        <div class="row">
+          <span id="menu-status" class="grow"></span>
+          <button class="secondary" id="btn-menu"></button>
+        </div>
+        <h2>Desktop shortcut</h2>
+        <div class="row">
+          <span id="shortcut-status" class="grow"></span>
+          <button class="secondary" id="btn-shortcut"></button>
+        </div>
+        <h2>Watch Face Studio files (.wfs, .wfsplugin)</h2>
+        <div class="row">
+          <span id="mime-status" class="grow"></span>
+          <button class="secondary" id="btn-mime"></button>
+        </div>
+      </section>
+
+      <!-- Installation & updates -->
+      <section data-panel="install" hidden>
+        <h2>Watch Face Studio</h2>
+        <dl id="install-info"></dl>
+        <div class="buttons">
+          <button class="secondary" id="btn-install">Install installer file…</button>
+          <button class="secondary" id="btn-rollback" hidden></button>
+          <button class="secondary" id="btn-download">Samsung download page</button>
+        </div>
+
+        <h2>Update checks</h2>
+        <p class="muted">Only version numbers are checked; nothing is downloaded automatically.</p>
+        <label class="check"><input type="checkbox" id="checkWfsUpdates"> Check Samsung's download page for new Watch Face Studio versions</label>
+        <label class="check"><input type="checkbox" id="checkLauncherUpdates"> Check GitHub for new WF-Studio for Linux versions</label>
+        <p class="override" id="update-override" hidden>Disabled by the environment variable WFS_LINUX_NO_UPDATE_CHECK.</p>
+
+        <h2>Folders</h2>
+        <div class="buttons">
+          <button class="secondary" id="btn-logs">Open log folder</button>
+          <button class="secondary" id="btn-data">Open installation folder</button>
+        </div>
+
+        <h2>Reset</h2>
+        <p class="muted">Removes the downloaded Watch Face Studio; afterwards you choose the installer file again. Projects, the workspace and Watch Face Studio's own settings are kept.</p>
+        <button class="danger" id="btn-reset">Reset installation…</button>
+      </section>
+
+      <!-- Startup & about -->
+      <section data-panel="general" hidden>
+        <h2>Startup</h2>
+        <label class="check"><input type="checkbox" id="bootScreen"> Show the boot screen at startup <span class="muted">(update check and quick access to these settings; without it, Watch Face Studio starts directly and checks for updates in the background)</span></label>
+
+        <h2>About</h2>
+        <dl id="about"></dl>
+        <p class="muted">Unofficial project, not affiliated with Samsung. Watch Face Studio is proprietary software of Samsung Electronics.</p>
+        <div class="buttons">
+          <button class="secondary" id="btn-repo">Project page</button>
+          <button class="secondary" id="btn-docs">How it works</button>
+        </div>
+      </section>
+
+      <footer>
+        <span class="spacer"></span>
+        <button id="btn-start-wfs" hidden>Start Watch Face Studio</button>
+      </footer>
+    </main>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

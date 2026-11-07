@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-watchfacestudio-project">
+    <comment>Watch Face Studio project</comment>
+    <glob pattern="*.wfs"/>
+  </mime-type>
+  <mime-type type="application/x-watchfacestudio-plugin">
+    <comment>Watch Face Studio plugin</comment>
+    <glob pattern="*.wfsplugin"/>
+  </mime-type>
+</mime-info>

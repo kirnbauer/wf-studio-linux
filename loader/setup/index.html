@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'">
+  <title>WF-Studio for Linux – Setup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>WF-Studio for Linux</h1>
+      <p class="sub">Runs Samsung's official Galaxy Watch Face Studio natively on Linux. Unofficial, not affiliated with Samsung.</p>
+    </header>
+
+    <section id="status-box">
+      <div class="row"><span class="label">Installed</span><span id="installed">–</span></div>
+      <div class="row"><span class="label">Latest from Samsung</span><span id="latest">checking…</span></div>
+      <div class="row" id="previous-row" hidden><span class="label">Previous version</span><span id="previous"></span></div>
+    </section>
+
+    <section id="steps">
+      <h2>Install or update Watch Face Studio</h2>
+      <ol>
+        <li>
+          <p>Download <b>Watch Face Studio for Windows</b> from Samsung in your browser. Samsung shows its license agreement there.</p>
+          <button id="btn-page" class="secondary">Open Samsung download page</button>
+        </li>
+        <li>
+          <p>Choose the downloaded file (<code>WatchFaceStudio_x.y.z.exe</code>). It is checked for Samsung's digital signature before anything is installed.</p>
+          <button id="btn-file">Choose installer file…</button>
+        </li>
+      </ol>
+    </section>
+
+    <section id="progress-box" hidden>
+      <div id="phase">Preparing…</div>
+      <progress id="bar" max="100"></progress>
+      <div id="detail"></div>
+    </section>
+
+    <div id="error" role="alert" hidden></div>
+
+    <footer>
+      <span class="spacer"></span>
+      <button id="btn-rollback" class="secondary" hidden>Go back to previous version</button>
+      <button id="btn-start" hidden>Start Watch Face Studio</button>
+    </footer>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

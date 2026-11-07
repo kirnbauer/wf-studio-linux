@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/kirnbauer/wf-studio-linux/security/advisories/new
+    about: Please report security problems privately.
+  - name: Problems with Watch Face Studio itself
+    url: https://forum.developer.samsung.com/c/watch-face-studio
+    about: Bugs that also happen on Windows/macOS belong to Samsung.
